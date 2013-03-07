@@ -7,7 +7,7 @@ my_http.createServer(function(request,response){
 	console.log(request.url);
 	////////////////////////////////////////////can be put into a better place
 	if (request.url==='/'){
-		filesys.readFile('./SL_front.html', "binary", function(err, file) {  
+		filesys.readFile('./index.html', "binary", function(err, file) {  
 			     if(err) {  
 			         response.writeHeader(500, {"Content-Type": "text/plain"});  
 			         response.write(err + "\n");  

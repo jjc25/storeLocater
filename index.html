@@ -6,7 +6,7 @@
 <meta name="description" content="McDonalds Store Locator using PHP, MySQL and Google Maps" />
 <meta name="keywords" content="javascript, web, ajax, jquery, store locator, google maps" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwc-Cs9S9eonuy_Il91WC-fBXS0K34cQ0&sensor=false"></script>
 
 <style type="text/css">
 .panel-item { padding: 5px; }
@@ -39,6 +39,7 @@ var geocoder = null;
 var markers = {};
 var infoWindow = null;
 
+//get the value of the text box on the click event of the button. after that, call two functions: initializeMap() and search address
 jQuery('#search').click(function() {
 	var address = jQuery('#address').val() || 'Vancouver';
 	if (map === null)
@@ -46,6 +47,7 @@ jQuery('#search').click(function() {
 	searchAddress(address);
 });
 
+//show details in a panel when a marker is clicked
 jQuery('.panel-item').live("click", function(e) {
 	var id = jQuery(this).attr('store-id');
 	var marker = markers[id];
@@ -53,6 +55,7 @@ jQuery('.panel-item').live("click", function(e) {
 	google.maps.event.trigger(marker, 'click');
 });
 
+//initialize the map with options
 function initializeMap() {
 	var mapOptions = {
 		zoom: 13,
@@ -68,10 +71,12 @@ function initializeMap() {
 	
 }
 
+//search the address and mark it on them map
 function searchAddress(address) {
 	geocoder.geocode( { 'address': address}, function(results, status) {
 		if (status === google.maps.GeocoderStatus.OK) {
 			var latlng = results[0].geometry.location;
+			
 			map.setCenter(latlng);
 			
 			searchStoresBounds(map.getBounds().toUrlValue());
@@ -82,11 +87,12 @@ function searchAddress(address) {
 	});
 }
 
+//get bounds and communicate with the server
 function searchStoresBounds() {
 	if (!map.getBounds())
 		return;
 	var bounds = map.getBounds().toUrlValue();
-	var url = './store-ajax-bounds.php';
+	var url = 'http://localhost:8080/fetch/';
 	var parameter = { bounds: bounds };
 	jQuery.ajax({
 		url: url,
