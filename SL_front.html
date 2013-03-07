@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwc-Cs9S9eonuy_Il91WC-fBXS0K34cQ0&sensor=false"></script>
+</head>
+
+<body>
+<input type="text" value="Vancouver" id="address">
+<input type="submit" value="Search" id="search">
+<div id="map_canvas" style="height:600px;width:800px; margin: 5px auto;">
+</div>
+
+<script>
+
+var map = null;
+var geocoder = null;
+var marker=null;
+var markers = {};
+var infoWindow = null;
+
+//get the value of the text box on the click event of the button. after that, call two functions: initializeMap() and search address
+jQuery('#search').click(function() {
+	var address = jQuery('#address').val() || 'Vancouver';
+	if (map === null)
+		initializeMap();
+	searchAddress(address);
+});
+//initialize the map with options
+function initializeMap() {
+	var mapOptions = {
+		zoom: 13,
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+	}
+	map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+	google.maps.event.addListener(map, "idle", function(event) {
+		searchStoresBounds();
+	});
+	
+	geocoder = new google.maps.Geocoder();
+	infoWindow = new google.maps.InfoWindow();
+	
+}
+
+//search the address and mark it on the map
+function searchAddress(address) {
+	geocoder.geocode( { 'address': address}, function(results, status) {
+		if (status === google.maps.GeocoderStatus.OK) {
+			var latlng = results[0].geometry.location;
+			map.setCenter(latlng);
+			marker=new google.maps.Marker({position: latlng,});
+			marker.setMap(map);
+			
+			searchStoresBounds(map.getBounds().toUrlValue());
+			
+		} else {
+			alert('Geocode was failed: ' + status);
+		}
+	});
+}
+//get bounds and send the information to the server
+function searchStoresBounds() {
+	if (!map.getBounds())
+		return;
+	var bounds = map.getBounds().toUrlValue();
+	var url = 'http://localhost:8080/fetch/';
+	var parameter = { bounds: bounds };
+	jQuery.ajax({
+		url: url,
+		data: parameter,
+		dataType: 'json',
+		success: showStores
+	});
+}
+
+</script>
+
+</body>
+</html>
